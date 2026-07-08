@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PrivacyChat - Secure & Private Messaging</title>
+  <meta name="description" content="A zero-server, highly secure, fully encrypted local messaging application.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/css/phosphor.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body class="theme-light font-outfit">
+
+  <div class="bg-glow-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="app-container">
+
+    <!-- Active Call Floating Banner (WhatsApp Minimize Bar style) -->
+    <div id="active-call-banner" class="active-call-banner" style="display: none;">
+      <div class="active-call-banner-content">
+        <span class="pulse-dot"></span>
+        <span id="active-call-banner-text">Active call...</span>
+      </div>
+      <button id="btn-active-call-banner-return" class="btn-primary" style="width: auto; padding: 4px 12px; font-size: 0.8rem; background: var(--success-color); color: #000; box-shadow: none;">Return</button>
+    </div>
+
+    <!-- 0. SIGN UP / REGISTRATION SCREEN (Local Profile Setup) -->
+    <div id="screen-signup" class="screen signup-screen">
+      <div class="login-card" style="max-width: 480px; padding: 2.5rem 2rem;">
+        <div>
+          <span class="login-logo"><i class="ph-bold ph-shield-check"></i> PrivacyChat</span>
+          <h2>Local Profile Setup</h2>
+          <p>Create your private local account. All profile data stays on this device.</p>
+        </div>
+
+        <!-- STEP 1: OTP Verification -->
+        <div id="signup-step-1" style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+          <div class="form-group">
+            <label for="signup-phone">Mobile Number</label>
+            <div class="input-wrapper">
+              <i class="ph ph-phone"></i>
+              <input type="tel" id="signup-phone" class="input-control" required autocomplete="off" maxlength="10" placeholder="10-digit number (starts with 6-9)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signup-email">Email Address (For Verification)</label>
+            <div class="input-wrapper">
+              <i class="ph ph-envelope"></i>
+              <input type="email" id="signup-email" class="input-control" required autocomplete="off" placeholder="e.g. user@gmail.com">
+            </div>
+          </div>
+
+          <button type="button" id="btn-signup-send-otp" class="btn-primary" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="ph ph-paper-plane-right"></i> Send Verification OTP
+          </button>
+
+          <!-- OTP Input Row (Hidden initially) -->
+          <div id="signup-otp-wrapper" style="display: none; flex-direction: column; gap: 10px; margin-top: 10px;">
+            <div class="form-group">
+              <label for="signup-otp-input">Enter OTP Sent to Email</label>
+              <div class="input-wrapper">
+                <i class="ph ph-key"></i>
+                <input type="text" id="signup-otp-input" class="input-control" maxlength="6" placeholder="******" style="text-align: center; letter-spacing: 6px; font-size: 1.2rem;">
+              </div>
+            </div>
+            <button type="button" id="btn-signup-verify-otp" class="btn-primary" style="background: var(--success-color); color: #000; padding: 12px;">
+              Verify Email OTP
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Profile Details (Hidden initially) -->
+        <form id="signup-form" onsubmit="event.preventDefault();" style="display: none; flex-direction: column; gap: 1rem; text-align: left; margin-top: 1rem;">
+          <div style="display: flex; gap: 12px; width: 100%;">
+            <div class="form-group" style="flex: 1;">
+              <label for="signup-name">Display Name</label>
+              <div class="input-wrapper">
+                <i class="ph ph-user"></i>
+                <input type="text" id="signup-name" class="input-control" required placeholder="e.g. Atul">
+              </div>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="signup-fullname">Full Name</label>
+              <div class="input-wrapper">
+                <i class="ph ph-identification-card"></i>
+                <input type="text" id="signup-fullname" class="input-control" required placeholder="Full Name">
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; width: 100%;">
+            <div class="form-group" style="flex: 1;">
+              <label for="signup-dob">Date of Birth</label>
+              <div class="input-wrapper">
+                <i class="ph ph-calendar"></i>
+                <input type="date" id="signup-dob" class="input-control" required style="padding-left: 46px;">
+              </div>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="signup-gender">Gender</label>
+              <div class="input-wrapper">
+                <i class="ph ph-gender-intersex"></i>
+                <select id="signup-gender" class="input-control" style="padding-left: 46px; background-color: rgba(255,255,255,0.05); color: #fff; appearance: none;" required>
+                  <option value="" disabled selected>Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signup-location">Your Location</label>
+            <div class="input-wrapper" style="gap: 8px;">
+              <i class="ph ph-map-pin"></i>
+              <input type="text" id="signup-location" class="input-control" required placeholder="Location" style="flex: 1;">
+              <button type="button" id="btn-detect-signup-location" class="btn-icon-labeled" style="padding: 12px 14px; border-radius: var(--border-radius-md); font-size: 0.8rem; background: rgba(0,229,255,0.1); border-color: rgba(0,229,255,0.2); display: flex; align-items: center; justify-content: center;" title="Get location automatically">
+                <i class="ph ph-gps" style="color: var(--accent-color);"></i>
+                <span style="color: var(--accent-color);">Detect</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signup-password-choose">Set Your Password</label>
+            <div class="input-wrapper">
+              <i class="ph ph-lock"></i>
+              <input type="password" id="signup-password-choose" class="input-control" required placeholder="Set custom password">
+            </div>
+          </div>
+
+          <button type="submit" id="btn-signup-submit" class="btn-primary" style="margin-top: 10px; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="ph-bold ph-user-plus"></i>
+            <span>Register Profile</span>
+          </button>
+        </form>
+
+        <div id="signup-error" class="error-message"></div>
+
+        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px;">
+          Already registered? <a href="#" id="link-goto-login-from-signup" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Login here</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="screen-login" class="screen login-screen">
+      <div class="login-card">
+        <div>
+          <span class="login-logo"><i class="ph-bold ph-shield-check"></i> PrivacyChat</span>
+          <h2>Secure Login</h2>
+          <p>Login using your registered mobile number and password.</p>
+        </div>
+
+        <form id="login-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <div class="form-group">
+            <label for="login-phone">Mobile Number</label>
+            <div class="input-wrapper">
+              <i class="ph ph-phone"></i>
+              <input type="tel" id="login-phone" class="input-control" required autocomplete="off" maxlength="10">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="input-wrapper">
+              <i class="ph ph-lock"></i>
+              <input type="password" id="login-password" class="input-control" required autocomplete="off">
+            </div>
+          </div>
+
+          <div style="text-align: right; margin-top: -6px;">
+            <a href="#" id="link-forgot-password" style="font-size: 0.85rem; color: var(--accent-color); text-decoration: none;">Forgot Password?</a>
+          </div>
+
+          <div id="login-error" class="error-message">Invalid phone number or password. Please try again.</div>
+
+          <button type="submit" id="btn-login-submit" class="btn-primary">
+            <i class="ph-bold ph-sign-in"></i> Sign In Securely
+          </button>
+
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+            Need to register a different account? <a href="#" id="link-goto-signup" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Register here</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 2. MAIN DASHBOARD SCREEN -->
+    <div id="screen-dashboard" class="screen dashboard-screen">
+      
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        
+        <!-- Header -->
+        <div class="sidebar-header">
+          <span class="sidebar-title" style="display: flex; flex-direction: column; gap: 4px;">
+            <span><i class="ph-fill ph-shield-check" style="color: var(--accent-color);"></i> PrivacyChat</span>
+            <span id="header-conn-status" style="font-size: 0.68rem; padding: 2px 6px; border-radius: 8px; background: rgba(255,23,68,0.1); color: #ff1744; border: 1px solid rgba(255,23,68,0.15); display: inline-flex; align-items: center; gap: 4px; font-weight: 600; width: fit-content; margin-top: 2px;">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #ff1744; display: inline-block;"></span> Offline
+            </span>
+          </span>
+          <div class="header-actions">
+            <button id="btn-add-contact" class="btn-icon" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: #fff; cursor: pointer;" title="Add Contact">
+              <i class="ph ph-user-plus"></i>
+            </button>
+            <button id="btn-header-logout" class="btn-icon" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--danger-color); background: rgba(255, 23, 68, 0.05); border: 1px solid rgba(255, 23, 68, 0.15); cursor: pointer;" title="Sign Out">
+              <i class="ph ph-sign-out"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable content tabs -->
+        <div class="sidebar-content">
+          
+          <!-- Tab 1: Chats & Contacts List -->
+          <div id="tab-chats-content" class="tab-content">
+            <div id="contacts-list" class="contacts-list">
+              <!-- Filled dynamically by app.js -->
+            </div>
+          </div>
+
+          <!-- Tab 1.5: Calls History log -->
+          <div id="tab-calls-content" class="tab-content" style="display: none;">
+            <div class="status-feed-container" style="padding: 0;">
+              <div class="status-separator" style="margin-top: 0; padding: 14px 20px;">Call Records</div>
+              <div id="call-history-list" class="contacts-list">
+                <!-- Filled dynamically by app.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Status Stories Feed -->
+          <div id="tab-status-content" class="tab-content" style="display: none;">
+            <div class="status-feed-container">
+              <!-- My Status section -->
+              <div class="my-status-card">
+                <div class="avatar-wrapper" id="my-status-avatar-wrapper">
+                  <img id="my-status-avatar" class="avatar" src="" alt="My Avatar">
+                  <div class="status-ring" id="my-status-ring"></div>
+                </div>
+                <div class="my-status-info" id="my-status-label" style="cursor: pointer;">
+                  <h4>My Status</h4>
+                  <p id="my-status-time-label">Tap to add status story</p>
+                </div>
+                <button id="btn-add-status" class="btn-icon" style="margin-left: auto; width: 36px; height: 36px;" title="Post story">
+                  <i class="ph ph-plus" style="font-size: 1.2rem; color: var(--accent-color);"></i>
+                </button>
+              </div>
+
+              <div class="status-separator">Recent Updates</div>
+
+              <!-- List of contacts statuses -->
+              <div id="status-list" class="status-list">
+                <!-- Filled dynamically by app.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Profile settings -->
+          <div id="tab-profile-content" class="tab-content" style="display: none;">
+            <div class="profile-section">
+              <div class="profile-avatar-wrapper" onclick="document.getElementById('profile-avatar-input').click()">
+                <img id="profile-pic" class="profile-avatar" src="" alt="Profile Picture">
+                <div class="profile-avatar-overlay">
+                  <i class="ph ph-camera"></i>
+                </div>
+              </div>
+              <input type="file" id="profile-avatar-input" accept="image/*" style="display: none;">
+
+              <div class="profile-fields">
+                <div class="form-group">
+                  <label for="profile-phone">Registered Mobile Number</label>
+                  <div class="input-wrapper">
+                    <i class="ph ph-phone" style="left: 14px; color: var(--text-muted);"></i>
+                    <input type="text" id="profile-phone" class="input-control" style="padding-left: 42px; background: rgba(255,255,255,0.02); color: var(--text-secondary);" readonly>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="profile-name">Your Name</label>
+                  <div class="input-wrapper">
+                    <i class="ph ph-user" style="left: 14px;"></i>
+                    <input type="text" id="profile-name" class="input-control" style="padding-left: 42px;" placeholder="Name">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="profile-bio">Bio</label>
+                  <div class="input-wrapper">
+                    <i class="ph ph-info" style="left: 14px;"></i>
+                    <input type="text" id="profile-bio" class="input-control" style="padding-left: 42px;" placeholder="Hey there!">
+                  </div>
+                </div>
+
+                <!-- Theme Switcher option inside Profile tab -->
+                <div class="form-group">
+                  <label for="profile-theme-select">Select Theme</label>
+                  <div class="input-wrapper">
+                    <i class="ph ph-palette" style="left: 14px; color: var(--text-muted);"></i>
+                    <select id="profile-theme-select" class="input-control" style="padding-left: 42px; background-color: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border-glass);">
+                      <option value="theme-cyber">Cyber Dark (Default)</option>
+                      <option value="theme-light">Classic Light Theme</option>
+                      <option value="theme-midnight">Midnight Blue</option>
+                      <option value="theme-emerald">Emerald Forest</option>
+                      <option value="theme-sunset">Sunset Orange</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                  <button id="btn-save-profile" class="btn-primary" style="flex: 1; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="ph ph-floppy-disk"></i> <span>Save Profile</span>
+                  </button>
+                  <button id="btn-logout" class="btn-icon-labeled" style="border-radius: var(--border-radius-md); width: auto; padding: 0 16px; color: var(--danger-color); display: flex; flex-direction: row; gap: 6px;" title="Sign Out">
+                    <i class="ph ph-sign-out"></i>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Privacy Settings & Themes -->
+          <div id="tab-privacy-content" class="tab-content" style="display: none;">
+            <div class="profile-section" style="align-items: flex-start; gap: 20px;">
+              <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 8px;">
+                <i class="ph-bold ph-shield-check"></i> Security Dashboard
+              </h3>
+              
+              <div class="privacy-metric-card">
+                <div class="metric-row">
+                  <span class="metric-label">Encryption:</span>
+                  <span class="metric-value success">Active (AES-GCM-256)</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-label">Server Connection:</span>
+                  <span class="metric-value success" id="connection-status">Online (E2EE Signal)</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-label">Database:</span>
+                  <span class="metric-value">Locked IndexedDB</span>
+                </div>
+              </div>
+
+              <div class="privacy-section-desc">
+                <p>All chats, media files, and profiles are encrypted using keys derived from your password. Messages travel end-to-end encrypted via temporary public signal topics.</p>
+              </div>
+
+              <!-- EMAIL CONFIGURATION SETTINGS FOR OTP -->
+              <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                <i class="ph ph-envelope"></i> Email Service Settings
+              </h3>
+              <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div class="privacy-section-desc" style="background: rgba(255,235,59,0.05); border-left-color: #ffd600;">
+                  <p style="font-size: 0.8rem; color: #fff;">Configure your auto-mailer here. You can use EmailJS, or input your deployed Google Apps Script URL directly to send emails from atulbhusare68@gmail.com!</p>
+                </div>
+                <div class="form-group">
+                  <label for="apps-script-url">Google Apps Script Web App URL</label>
+                  <input type="text" id="apps-script-url" class="input-control" style="padding-left: 16px;" placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">OR (EmailJS)</div>
+                <div class="form-group">
+                  <label for="emailjs-service-id">EmailJS Service ID</label>
+                  <input type="text" id="emailjs-service-id" class="input-control" style="padding-left: 16px;" placeholder="e.g. service_xxxxxx">
+                </div>
+                <div class="form-group">
+                  <label for="emailjs-template-id">EmailJS Template ID</label>
+                  <input type="text" id="emailjs-template-id" class="input-control" style="padding-left: 16px;" placeholder="e.g. template_xxxxxx">
+                </div>
+                <div class="form-group">
+                  <label for="emailjs-public-key">EmailJS Public Key</label>
+                  <input type="text" id="emailjs-public-key" class="input-control" style="padding-left: 16px;" placeholder="e.g. user_xxxxxxxxx">
+                </div>
+                <button id="btn-save-emailjs-config" class="btn-primary" style="padding: 12px; background: rgba(0,229,255,0.1); border: 1px solid var(--accent-color); color: var(--accent-color); box-shadow: none;">
+                  Save Mailer Configurations
+                </button>
+              </div>
+
+              <!-- APPEARANCE & THEMES CUSTOMIZATION -->
+              <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                <i class="ph ph-palette"></i> Appearance & Style
+              </h3>
+
+              <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div class="form-group">
+                  <label for="theme-select">Theme Style</label>
+                  <select id="theme-select" class="input-control" style="padding-left: 16px; background-color: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border-glass);">
+                    <option value="theme-cyber">Cyber Dark (Default)</option>
+                    <option value="theme-light">Classic Light Theme</option>
+                    <option value="theme-midnight">Midnight Blue</option>
+                    <option value="theme-emerald">Emerald Forest</option>
+                    <option value="theme-sunset">Sunset Orange</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="font-select">Typing Style (Font)</label>
+                  <select id="font-select" class="input-control" style="padding-left: 16px; background-color: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border-glass);">
+                    <option value="font-outfit">Outfit (Modern)</option>
+                    <option value="font-playfair">Playfair (Elegant)</option>
+                    <option value="font-fira">Fira Code (Developer)</option>
+                    <option value="font-dyslexic">OpenDyslexic (Accessible)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="wallpaper-select">Chat Wallpaper</label>
+                  <select id="wallpaper-select" class="input-control" style="padding-left: 16px; background-color: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border-glass);">
+                    <option value="wp-glass">Glassmorphic Blur (Default)</option>
+                    <option value="wp-solid">Midnight Solid</option>
+                    <option value="wp-gradient">Aurora Gradient</option>
+                    <option value="wp-grid">Cyber Grid</option>
+                    <option value="wp-custom">Custom Image...</option>
+                  </select>
+                </div>
+
+                <div id="custom-wallpaper-wrapper" class="form-group" style="display: none;">
+                  <label for="custom-wallpaper-input" class="btn-primary" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; padding: 12px;">
+                    <i class="ph ph-upload"></i> Upload Custom Image
+                  </label>
+                  <input type="file" id="custom-wallpaper-input" accept="image/*" style="display: none;">
+                </div>
+              </div>
+
+              <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                <i class="ph ph-arrows-down-up"></i> Data Backup & Restore
+              </h3>
+
+              <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <button id="btn-export-chats" class="btn-primary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #fff; box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+                  <i class="ph ph-download-simple"></i> Export Encrypted Backup
+                </button>
+                
+                <button onclick="document.getElementById('import-file-input').click()" class="btn-primary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #fff; box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+                  <i class="ph ph-upload-simple"></i> Import Encrypted Backup
+                </button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+              </div>
+
+              <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                <i class="ph ph-prohibit"></i> Blocked Numbers
+              </h3>
+              <div id="blocked-contacts-list" style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No blocked numbers.</p>
+              </div>
+
+              <button id="btn-wipe-data" class="btn-profile-wipe" style="margin-top: 20px;">
+                <i class="ph ph-trash"></i> Wipe All Data & Log Out
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Tabs Bar with Calls Icon -->
+        <div class="tabs-navigation">
+          <button id="tab-chats-btn" class="tab-nav-btn active"><i class="ph ph-chats-teardrop"></i><span>Chats</span></button>
+          <button id="tab-calls-btn" class="tab-nav-btn"><i class="ph ph-phone"></i><span>Calls</span></button>
+          <button id="tab-status-btn" class="tab-nav-btn"><i class="ph ph-circle-dashed"></i><span>Status</span></button>
+          <button id="tab-profile-btn" class="tab-nav-btn"><i class="ph ph-user-gear"></i><span>Profile</span></button>
+          <button id="tab-privacy-btn" class="tab-nav-btn"><i class="ph ph-shield-star"></i><span>Settings</span></button>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL (Active Chat view / Chat Placeholder) -->
+      <div class="chat-window">
+        
+        <div id="chat-placeholder-view" class="chat-placeholder">
+          <i class="ph-bold ph-shield-check"></i>
+          <h3>PrivacyChat Dashboard</h3>
+          <p style="max-width: 320px; color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem;">
+            End-to-End client encrypted communications. All messages and media files are stored locally on your device.
+          </p>
+        </div>
+
+        <div id="chat-active-view" class="chat-active-view">
+          
+          <!-- Chat Header -->
+          <div class="chat-header">
+            <div class="chat-header-info">
+              <button id="btn-chat-back" class="btn-icon" title="Back" style="width: 36px; height: 36px; display: none; margin-right: 8px;">
+                <i class="ph ph-arrow-left"></i>
+              </button>
+              <img id="chat-header-avatar" class="avatar" style="width: 42px; height: 42px;" src="" alt="Contact">
+              <div class="chat-header-text">
+                <h4 id="chat-header-name">Contact Name</h4>
+                <p id="chat-header-number">Mobile Number</p>
+              </div>
+            </div>
+            
+            <div class="chat-header-controls">
+              <button id="btn-lock-chat" class="btn-action-pills" title="Lock chat with passcode">
+                <i class="ph ph-lock"></i>
+                <span id="lock-btn-label">Lock Chat</span>
+              </button>
+
+              <button id="btn-voice-call" class="btn-action-pills" title="Start voice call">
+                <i class="ph-fill ph-phone"></i>
+                <span>Voice Call</span>
+              </button>
+              
+              <button id="btn-video-call" class="btn-action-pills" title="Start video call">
+                <i class="ph-fill ph-video-camera"></i>
+                <span>Video Call</span>
+              </button>
+              
+              <button id="btn-block-contact" class="btn-action-pills danger-toggle" title="Block contact">
+                <i class="ph ph-prohibit"></i>
+                <span id="block-btn-label">Block</span>
+              </button>
+              
+              <button id="btn-delete-chat" class="btn-action-pills danger" title="Clear chat history">
+                <i class="ph ph-trash"></i>
+                <span>Delete Chat</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Message History Board -->
+          <div id="chat-messages" class="chat-messages"></div>
+
+          <!-- Replying To message preview panel (floating above inputs) -->
+          <div id="reply-preview-container" style="display: none; justify-content: space-between; align-items: center; background: rgba(0,229,255,0.06); border-left: 4px solid var(--accent-color); padding: 8px 16px; border-top: 1px solid var(--border-glass);">
+            <div style="display: flex; flex-direction: column; gap: 2px; text-align: left; min-width: 0;">
+              <span style="font-size: 0.72rem; color: var(--accent-color); font-weight: 600;">Replying to message</span>
+              <span id="reply-preview-text" style="font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">Text...</span>
+            </div>
+            <button id="btn-cancel-reply" class="btn-icon" style="width: 24px; height: 24px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="ph ph-x" style="font-size: 1rem; color: var(--text-secondary);"></i></button>
+          </div>
+
+          <div id="blocked-banner" class="blocked-banner" style="display: none;">
+            <i class="ph ph-prohibit"></i>
+            <span>This contact is blocked. Unblock this number to resume chat and calls.</span>
+            <button id="btn-unblock-banner" class="btn-primary" style="width: auto; padding: 6px 16px; font-size: 0.85rem;">Unblock</button>
+          </div>
+
+          <!-- Input Controls Board -->
+          <div id="chat-input-row" class="chat-input-area">
+            
+            <button id="btn-attachment" class="btn-attach-labeled" title="Attach file">
+              <i class="ph ph-paperclip"></i>
+              <span>File</span>
+            </button>
+            <input type="file" id="chat-file-input" style="display: none;" accept="image/*,video/*,application/pdf,*/*">
+
+            <button id="btn-share-location" class="btn-attach-labeled" title="Share location">
+              <i class="ph ph-map-pin"></i>
+              <span>Location</span>
+            </button>
+
+            <!-- Chat Text Area with Emoji button -->
+            <div class="chat-input-container" style="position: relative; display: flex; align-items: center; flex: 1; min-width: 0;">
+              <button id="btn-emoji" type="button" style="position: absolute; right: 12px; width: 36px; height: 36px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5;" title="Insert Emoji">
+                <i class="ph ph-smiley" style="color: var(--text-secondary); font-size: 1.4rem;"></i>
+              </button>
+              <input type="text" id="chat-text-input" class="chat-text-input" placeholder="Type a secure message..." autocomplete="off" style="padding-right: 50px; width: 100%;">
+              
+              <!-- Emoji Picker Box -->
+              <div id="emoji-picker-popup" class="emoji-picker-popup" style="display: none;"></div>
+            </div>
+
+            <button id="btn-send-message" class="btn-send-labeled" title="Send message">
+              <i class="ph-bold ph-paper-plane-right"></i>
+              <span>Send</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- MODALS -->
+    <!-- MODAL 1: ADD CONTACT -->
+    <div id="modal-add-contact" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add New Contact</h3>
+          <button id="btn-close-contact-modal" type="button" class="btn-icon"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="add-contact-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label for="contact-name-input">Contact Name</label>
+            <input type="text" id="contact-name-input" class="input-control" style="padding-left: 16px;" required autocomplete="off" placeholder="e.g. John Doe">
+          </div>
+          <div class="form-group">
+            <label for="contact-phone-input">Mobile Number</label>
+            <input type="tel" id="contact-phone-input" class="input-control" style="padding-left: 16px;" required autocomplete="off" maxlength="10" placeholder="10-digit (starts with 6-9)">
+          </div>
+          <div id="contact-error" class="error-message"></div>
+          <button type="submit" class="btn-primary" style="padding: 12px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <i class="ph ph-user-plus"></i> <span>Save Contact</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 2: ADD STATUS -->
+    <div id="modal-add-status" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Post New Status</h3>
+          <button id="btn-close-status-modal" type="button" class="btn-icon"><i class="ph ph-x"></i></button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <button onclick="document.getElementById('status-image-input').click()" class="btn-primary" style="background: var(--bg-glass-active); color: #fff; border: 1px solid var(--border-glass); box-shadow: none; padding: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i class="ph ph-image" style="font-size: 1.3rem; color: var(--accent-color);"></i>
+            <span>Upload Image Status</span>
+          </button>
+          <input type="file" id="status-image-input" accept="image/*" style="display: none;">
+
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">OR</div>
+
+          <div class="form-group">
+            <label for="status-text-input">Text Status Story</label>
+            <input type="text" id="status-text-input" class="input-control" style="padding-left: 16px;" placeholder="Write status..." maxlength="120">
+          </div>
+          <button id="btn-submit-text-status" class="btn-primary" style="padding: 12px;">Post Status</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: STATUS VIEWER -->
+    <div id="status-viewer-modal" class="status-viewer-modal">
+      <div class="status-viewer-container">
+        <div id="status-progress-container" class="status-progress-container"></div>
+        <div class="status-viewer-header">
+          <div class="status-viewer-user">
+            <img id="status-viewer-avatar" class="status-viewer-avatar" src="" alt="">
+            <div>
+              <div id="status-viewer-name" class="status-viewer-name">Name</div>
+              <div id="status-viewer-time" class="status-viewer-time">Just now</div>
+            </div>
+          </div>
+          <button id="status-viewer-close" class="status-viewer-close"><i class="ph ph-x"></i></button>
+        </div>
+        <div id="status-viewer-body" class="status-viewer-body"></div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: IMAGE LIGHTBOX -->
+    <div id="image-lightbox" class="image-lightbox" onclick="this.classList.remove('active')">
+      <button class="image-lightbox-close"><i class="ph ph-x"></i></button>
+      <img id="image-lightbox-img" class="image-lightbox-img" src="" alt="">
+    </div>
+
+    <!-- MODAL 5: VOICE/VIDEO CALL OVERLAY (WhatsApp Full-Screen Style) -->
+    <div id="call-overlay" class="call-overlay">
+      <!-- Minimize button & Record button at top -->
+      <div style="position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 10010; width: calc(100% - 40px);">
+        <button id="btn-call-minimize" class="btn-icon call-minimize-btn" title="Minimize call">
+          <i class="ph ph-arrow-left"></i>
+        </button>
+        
+        <!-- Record Call Button inside calling screen -->
+        <button id="btn-call-record" class="btn-icon call-minimize-btn" style="background: rgba(255,23,68,0.2) !important; border-color: rgba(255,23,68,0.4) !important;" title="Record Call">
+          <i class="ph ph-record" id="call-record-icon" style="color: var(--danger-color); font-size: 1.25rem;"></i>
+        </button>
+      </div>
+
+      <!-- Video Feed container (Full-screen background for video calls) -->
+      <div id="call-video-container" class="call-video-container">
+        <!-- Remote Video (Full Screen Background) -->
+        <video id="call-remote-video" autoplay playsinline class="call-remote-video"></video>
+        <!-- Local Video (PiP thumbnail floating in corner) -->
+        <video id="call-local-video" autoplay playsinline muted class="call-local-video"></video>
+      </div>
+
+      <div id="call-record-banner" style="display: none; position: absolute; top: 80px; background: rgba(255,23,68,0.85); color: #fff; padding: 6px 14px; border-radius: 20px; z-index: 10008; font-size: 0.8rem; font-weight: 600; align-items: center; gap: 6px; animation: pulse 1s infinite;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #fff; display: inline-block;"></span> Recording Call...
+      </div>
+
+      <!-- Caller Details Overlay (At the top of screen) -->
+      <div class="call-details-overlay">
+        <img id="call-avatar" class="call-avatar" src="" alt="Avatar">
+        <h3 id="call-name">Name</h3>
+        <p id="call-status">Calling...</p>
+        <div id="call-timer" class="call-timer">00:00</div>
+      </div>
+      
+      <!-- Call Actions panel (Floating at the bottom) -->
+      <div class="call-actions-overlay">
+        <button id="btn-accept-call" class="btn-accept-call"><i class="ph-fill ph-phone"></i><span>Accept</span></button>
+        <button id="btn-end-call" class="btn-end-call"><i class="ph-fill ph-phone-x"></i><span>End</span></button>
+      </div>
+    </div>
+
+    <!-- MODAL 6: CHAT LOCK PASSCODE PROMPT -->
+    <div id="modal-chat-lock" class="modal-overlay">
+      <div class="modal-content" style="max-width: 320px; text-align: center; padding: 2rem 1.5rem;">
+        <div style="font-size: 3rem; color: var(--accent-color); margin-bottom: 12px;">
+          <i class="ph-fill ph-lock-key"></i>
+        </div>
+        <h3 style="margin-bottom: 8px;">Locked Conversation</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;">This chat is locked. Please enter your passcode to view messages.</p>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <input type="password" id="chat-lock-password" class="input-control" style="padding-left: 16px; text-align: center; letter-spacing: 4px; font-size: 1.25rem;" maxlength="8" placeholder="••••">
+        </div>
+        <div id="chat-lock-error" class="error-message" style="margin-bottom: 12px; display: none;">Incorrect passcode.</div>
+        <div style="display: flex; gap: 10px; width: 100%;">
+          <button id="btn-chat-lock-cancel" class="btn-primary" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: #fff; box-shadow: none; flex: 1; padding: 12px;">Cancel</button>
+          <button id="btn-chat-lock-submit" class="btn-primary" style="flex: 1; padding: 12px;">Unlock</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 7: FORGOT PASSWORD PASSCODE PROMPT -->
+    <div id="modal-forgot-password" class="modal-overlay">
+      <div class="modal-content" style="max-width: 380px; padding: 2rem 1.5rem;">
+        <div style="font-size: 3rem; color: var(--accent-color); text-align: center; margin-bottom: 12px;">
+          <i class="ph-fill ph-lock-laminated"></i>
+        </div>
+        <h3 style="text-align: center; margin-bottom: 8px;">Reset Password</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-bottom: 20px;">Enter your registered mobile number to receive a secure reset code.</p>
+        
+        <!-- STEP 1: Phone input -->
+        <div id="forgot-step-1" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="form-group">
+            <label for="forgot-phone-input">Mobile Number</label>
+            <input type="tel" id="forgot-phone-input" class="input-control" style="padding-left: 16px;" maxlength="10" placeholder="10-digit number">
+          </div>
+          <button id="btn-forgot-send-otp" class="btn-primary" style="padding: 12px;">Send Reset OTP</button>
+        </div>
+
+        <!-- STEP 2: OTP and New Password -->
+        <div id="forgot-step-2" style="display: none; flex-direction: column; gap: 12px;">
+          <div class="form-group">
+            <label id="forgot-email-label" style="font-size: 0.82rem; color: var(--accent-color);"></label>
+          </div>
+          <div class="form-group">
+            <label for="forgot-otp-input">Enter OTP</label>
+            <input type="text" id="forgot-otp-input" class="input-control" style="padding-left: 16px; text-align: center; letter-spacing: 4px;" maxlength="6" placeholder="******">
+          </div>
+          <div class="form-group">
+            <label for="forgot-password-new">Enter New Password</label>
+            <input type="password" id="forgot-password-new" class="input-control" style="padding-left: 16px;" placeholder="Create new password">
+          </div>
+          <button id="btn-forgot-reset-submit" class="btn-primary" style="padding: 12px; background: var(--success-color); color: #000;">Reset & Login</button>
+        </div>
+
+        <div id="forgot-error" class="error-message" style="margin-top: 10px; display: none;"></div>
+        
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="#" id="link-forgot-cancel" style="font-size: 0.85rem; color: var(--text-secondary); text-decoration: none;">Cancel</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EmailJS Library CDN -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <!-- MQTT client via WebSocket CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+  <script src="db.js"></script>
+  <script src="crypto.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('Service Worker registered!', reg.scope))
+          .catch(err => console.log('Service Worker failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "PrivacyChat",
+  "short_name": "PrivacyChat",
+  "description": "Zero-server E2EE secure chatting & calling app.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f3f8",
+  "theme_color": "#007aff",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
